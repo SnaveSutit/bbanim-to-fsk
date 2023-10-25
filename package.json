@@ -1,6 +1,6 @@
 {
-	"name": "blockbench_plugin_template",
-	"title": "BlockBench Plugin Template",
+	"name": "bbanim_to_fsk",
+	"title": "BBAnim to FSK",
 	"version": "1.0.0",
 	"tags": [
 		"Tag A",
@@ -15,9 +15,9 @@
 	},
 	"repository": {
 		"type": "github",
-		"url": "https://github.com/SnaveSutit/blockbench-plugin-template"
+		"url": "https://github.com/SnaveSutit/bbanim-to-fsk"
 	},
-	"description": "A simple Blockbench plugin template",
+	"description": "Converts Blockbench animations to Fisk file animations.",
 	"main": "./dist/index.js",
 	"types": "./dist/src/index.d.ts",
 	"private": true,

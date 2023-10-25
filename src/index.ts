@@ -1,4 +1,5 @@
 import * as PACKAGE from '../package.json'
+import { renderAnimationAsFSK } from './animationRenderer'
 import { consoleGroupCollapsed } from './util/console'
 import * as events from './util/events'
 import './util/moddingTools'
@@ -6,12 +7,15 @@ import './util/moddingTools'
 //-------------------------------
 // Import your source files here
 //-------------------------------
-import './dialogs/exampleDialog'
+import './dialogs/animationPropertiesDialog'
+import './mods/animationMod'
+import './mods/exportAction'
 
 // Expose this plugin's events globally and to other plugins
 // @ts-ignore
-globalThis.BlockbenchPluginTemplate = {
+globalThis.BBAnimToFSK = {
 	events: events,
+	renderAnimationAsFSK,
 }
 
 BBPlugin.register(PACKAGE.name, {
