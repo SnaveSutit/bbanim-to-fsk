@@ -9,16 +9,22 @@ function scaleTime(time: number, length: number) {
 }
 
 export function renderAnimationAsFSK(animation: _Animation) {
+	const variables: Record<string, string> = {}
+
 	const animVariable = `{${animation.name}_time}`
 	const curve = animation.enable_curve ? 'curve ' : ''
 
+	const fileHeader: string[] = []
 	const file: string[] = []
 
-	file.push(`; Animation: ${animation.name}`)
-	file.push(`${animVariable} = {${animation.variable_name}}`)
+	fileHeader.push(`; Animation: ${animation.name}`)
+	fileHeader.push(`${animVariable} = {${animation.variable_name}}`)
 
 	for (const bone of Blockbench.Group.all) {
-		file.push(`\n; Bone: ${bone.name}`)
+		const boneLines: string[] = []
+		let shouldExport = false
+		boneLines.push(`\n; Bone: ${bone.name}`)
+
 		const animator = animation.animators[bone.uuid]
 		if (!animator) continue
 		const sortedKeyframes = animator.keyframes.sort((a, b) => Number(a.time) - Number(b.time))
@@ -30,8 +36,23 @@ export function renderAnimationAsFSK(animation: _Animation) {
 			let nextKeyframe: _Keyframe | undefined
 			let prevKeyframeScaledTime: number, nextKeyframeScaledTime: number
 			for (const keyframe of keyframes) {
-				const thisKeyframeScaledTime = scaleTime(Number(keyframe.time), animation.length)
+				let channel = keyframe.channel
+				if (channel == 'position') channel = 'pos'
+				else if (channel == 'rotation') channel = 'rot'
+				else if (channel == 'scale') continue
 
+				const xValue = roundTo(Number(keyframe.data_points[0].x), PRECISION)
+				const yValue = roundTo(
+					channel == 'pos'
+						? -Number(keyframe.data_points[0].y)
+						: Number(keyframe.data_points[0].y),
+					PRECISION
+				)
+				const zValue = roundTo(Number(keyframe.data_points[0].z), PRECISION)
+				if (xValue == 0 && yValue == 0 && zValue == 0) continue
+				shouldExport = true
+
+				const thisKeyframeScaledTime = scaleTime(Number(keyframe.time), animation.length)
 				prevKeyframe = keyframes[keyframes.indexOf(keyframe) - 1]
 				if (prevKeyframe) {
 					prevKeyframeScaledTime = scaleTime(Number(prevKeyframe.time), animation.length)
@@ -46,46 +67,48 @@ export function renderAnimationAsFSK(animation: _Animation) {
 					nextKeyframeScaledTime = animation.length * 10
 				}
 
-				const peak = Math.abs(prevKeyframeScaledTime - thisKeyframeScaledTime)
-				const valley = Math.abs(nextKeyframeScaledTime - thisKeyframeScaledTime)
+				const peak = roundTo(
+					Math.abs(prevKeyframeScaledTime - thisKeyframeScaledTime),
+					PRECISION
+				)
+				const valley = roundTo(
+					Math.abs(nextKeyframeScaledTime - thisKeyframeScaledTime),
+					PRECISION
+				)
 				const startTime = prevKeyframeScaledTime
-				const duration = nextKeyframeScaledTime - prevKeyframeScaledTime
-
-				let channel = keyframe.channel
-				if (channel == 'position') channel = 'pos'
-				else if (channel == 'rotation') channel = 'rot'
-				else if (channel == 'scale') continue
+				const duration = roundTo(nextKeyframeScaledTime - prevKeyframeScaledTime, PRECISION)
 
 				const keyframeFunction = `${curve}animate2(${animVariable}, ${duration}, ${startTime}, ${peak}, ${valley})`
-				const keyframeVariable = `{${animation.name}_${
-					bone.name
-				}_keyframe_${channel}_${keyframes.indexOf(keyframe)}}`
+				let keyframeVariable = `{${animation.name}_${Object.keys(variables).length}}`
 
-				file.push(`${keyframeVariable} = ${keyframeFunction}`)
+				if (variables[keyframeFunction]) {
+					keyframeVariable = variables[keyframeFunction]
+				} else {
+					variables[keyframeFunction] = keyframeVariable
+					fileHeader.push(`${keyframeVariable} = ${keyframeFunction}`)
+				}
 
 				const boneVariable = `{${bone.name}_${channel}%AXIS%}`
 				const degreeFlag = channel == 'rot' ? "'" : ''
 
-				file.push(
-					`${boneVariable.replace('%AXIS%', 'X')} @ ${keyframeVariable} -> ${roundTo(
-						Number(keyframe.data_points[0].x),
-						PRECISION
-					)}${degreeFlag} + ${boneVariable.replace('%AXIS%', 'X')}`
-				)
-				file.push(
-					`${boneVariable.replace('%AXIS%', 'Y')} @ ${keyframeVariable} -> ${roundTo(
-						channel == 'pos'
-							? -Number(keyframe.data_points[0].y)
-							: Number(keyframe.data_points[0].y),
-						PRECISION
-					)}${degreeFlag} + ${boneVariable.replace('%AXIS%', 'Y')}`
-				)
-				file.push(
-					`${boneVariable.replace('%AXIS%', 'Z')} @ ${keyframeVariable} -> ${roundTo(
-						Number(keyframe.data_points[0].z),
-						PRECISION
-					)}${degreeFlag} + ${boneVariable.replace('%AXIS%', 'Z')}`
-				)
+				if (xValue != 0) {
+					const boneXVariable = boneVariable.replace('%AXIS%', 'X')
+					boneLines.push(
+						`${boneXVariable} @ ${keyframeVariable} -> ${xValue}${degreeFlag} + ${boneXVariable}`
+					)
+				}
+				if (yValue != 0) {
+					const boneYVariable = boneVariable.replace('%AXIS%', 'Y')
+					boneLines.push(
+						`${boneYVariable} @ ${keyframeVariable} -> ${yValue}${degreeFlag} + ${boneYVariable}`
+					)
+				}
+				if (zValue != 0) {
+					const boneZVariable = boneVariable.replace('%AXIS%', 'Z')
+					boneLines.push(
+						`${boneZVariable} @ ${keyframeVariable} -> ${zValue}${degreeFlag} + ${boneZVariable}`
+					)
+				}
 
 				prevKeyframe = keyframe
 			}
@@ -93,7 +116,9 @@ export function renderAnimationAsFSK(animation: _Animation) {
 
 		generateKeyframes(rotationKeyframes)
 		generateKeyframes(positionKeyframes)
+
+		if (shouldExport) file.push(...boneLines)
 	}
 
-	return file.join('\n')
+	return [...fileHeader, ...file].join('\n')
 }
