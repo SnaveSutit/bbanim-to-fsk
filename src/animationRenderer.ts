@@ -14,16 +14,12 @@ export function renderAnimationAsFSK(animation: _Animation) {
 	const animVariable = `{${animation.name}_time}`
 	const curve = animation.enable_curve ? 'curve ' : ''
 
-	const fileHeader: string[] = []
+	const fileHeader: string[] = [`${animVariable}={${animation.variable_name}}`]
 	const file: string[] = []
 
-	fileHeader.push(`; Animation: ${animation.name}`)
-	fileHeader.push(`${animVariable} = {${animation.variable_name}}`)
-
 	for (const bone of Blockbench.Group.all) {
-		const boneLines: string[] = []
+		const boneLines: string[] = [''] // Empty line for readability
 		let shouldExport = false
-		boneLines.push(`\n; Bone: ${bone.name}`)
 
 		const animator = animation.animators[bone.uuid]
 		if (!animator) continue
@@ -78,14 +74,14 @@ export function renderAnimationAsFSK(animation: _Animation) {
 				const startTime = prevKeyframeScaledTime
 				const duration = roundTo(nextKeyframeScaledTime - prevKeyframeScaledTime, PRECISION)
 
-				const keyframeFunction = `${curve}animate2(${animVariable}, ${duration}, ${startTime}, ${peak}, ${valley})`
+				const keyframeFunction = `${curve}animate2(${animVariable},${duration},${startTime},${peak},${valley})`
 				let keyframeVariable = `{${animation.name}_${Object.keys(variables).length}}`
 
 				if (variables[keyframeFunction]) {
 					keyframeVariable = variables[keyframeFunction]
 				} else {
 					variables[keyframeFunction] = keyframeVariable
-					fileHeader.push(`${keyframeVariable} = ${keyframeFunction}`)
+					fileHeader.push(`${keyframeVariable}=${keyframeFunction}`)
 				}
 
 				const boneVariable = `{${bone.name}_${channel}%AXIS%}`
@@ -93,21 +89,15 @@ export function renderAnimationAsFSK(animation: _Animation) {
 
 				if (xValue != 0) {
 					const boneXVariable = boneVariable.replace('%AXIS%', 'X')
-					boneLines.push(
-						`${boneXVariable} @ ${keyframeVariable} -> ${xValue}${degreeFlag} + ${boneXVariable}`
-					)
+					boneLines.push(`${boneXVariable}+=${xValue}${degreeFlag}${keyframeVariable}`)
 				}
 				if (yValue != 0) {
 					const boneYVariable = boneVariable.replace('%AXIS%', 'Y')
-					boneLines.push(
-						`${boneYVariable} @ ${keyframeVariable} -> ${yValue}${degreeFlag} + ${boneYVariable}`
-					)
+					boneLines.push(`${boneYVariable}+=${yValue}${degreeFlag}${keyframeVariable}`)
 				}
 				if (zValue != 0) {
 					const boneZVariable = boneVariable.replace('%AXIS%', 'Z')
-					boneLines.push(
-						`${boneZVariable} @ ${keyframeVariable} -> ${zValue}${degreeFlag} + ${boneZVariable}`
-					)
+					boneLines.push(`${boneZVariable}+=${zValue}${degreeFlag}${keyframeVariable}`)
 				}
 
 				prevKeyframe = keyframe
