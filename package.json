@@ -1,11 +1,11 @@
 {
-	"name": "bbanim_to_fsk",
-	"title": "BBAnim to FSK",
+	"name": "fsk-animation-exporter",
+	"title": "FSK Animation Exporter",
 	"version": "1.0.0",
 	"tags": [
-		"Tag A",
-		"Tag B",
-		"Tag C"
+		"Minecraft: Java Edition",
+		".fsk",
+		"Fisk's Superheroes"
 	],
 	"min_blockbench_version": "4.2.0",
 	"author": {
@@ -17,7 +17,7 @@
 		"type": "github",
 		"url": "https://github.com/SnaveSutit/bbanim-to-fsk"
 	},
-	"description": "Converts Blockbench animations to Fisk file animations.",
+	"description": "Converts Blockbench animations to FSK files.",
 	"main": "./dist/index.js",
 	"types": "./dist/src/index.d.ts",
 	"private": true,

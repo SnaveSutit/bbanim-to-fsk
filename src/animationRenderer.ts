@@ -32,6 +32,16 @@ export function renderAnimationAsFSK(animation: _Animation) {
 			let nextKeyframe: _Keyframe | undefined
 			let prevKeyframeScaledTime: number, nextKeyframeScaledTime: number
 			for (const keyframe of keyframes) {
+				if (keyframe.has_expressions) {
+					Blockbench.showMessageBox({
+						title: 'Math-based Keyframe Expressions are Not Supported',
+						message: `Math-based keyframe expressions are not supported in the FSK export. Please remove expressions from keyframe at ${keyframe.time}s in '${animation.name}' for '${bone.name}'.`,
+						buttons: ['OK'],
+					})
+					throw new Error(
+						'Math-based keyframe expressions are not supported in the FSK export.'
+					)
+				}
 				let channel = keyframe.channel
 				if (channel == 'position') channel = 'pos'
 				else if (channel == 'rotation') channel = 'rot'

@@ -2,12 +2,33 @@ import PACKAGE from '../../package.json'
 import { renderAnimationAsFSK } from '../animationRenderer'
 import { createAction } from '../util/moddingTools'
 
-let lastExportPath = 'animation.fsk'
+const condition = () => {
+	return !!Project?.format.animation_mode
+}
 
-const EXPORT_ACTION = createAction(`${PACKAGE.name}:exportAction`, {
-	name: 'Export to FSK',
-	icon: 'create_session',
-	condition: () => true,
+const EXPORT_ACTION = createAction(`${PACKAGE.name}:export`, {
+	name: 'Export FSK',
+	icon: 'video_file',
+	condition,
+	description: 'Export the current animation to FSK',
+	click: () => {
+		if (!Project?.lastExportPath) {
+			EXPORT_AS_ACTION.click()
+			return
+		}
+		const content = renderAnimationAsFSK(Animator.selected!)
+		Blockbench.writeFile(Project?.lastExportPath || '', {
+			content,
+			savetype: 'text',
+		})
+	},
+})
+MenuBar.addAction(EXPORT_ACTION, 'file.export.0')
+
+const EXPORT_AS_ACTION = createAction(`${PACKAGE.name}:exportAsAction`, {
+	name: 'Export FSK As',
+	icon: 'video_file',
+	condition,
 	description: 'Export all animations to FSK',
 	click: () => {
 		const file: string[] = []
@@ -20,9 +41,8 @@ const EXPORT_ACTION = createAction(`${PACKAGE.name}:exportAction`, {
 		electron.dialog
 			.showSaveDialog({
 				title: 'Export to FSK',
-				defaultPath: lastExportPath,
-				promptToCreate: true,
-				properties: ['openFile'],
+				defaultPath: Project?.lastExportPath,
+				properties: [],
 			})
 			.then((result: any) => {
 				if (!result.canceled) {
@@ -31,10 +51,9 @@ const EXPORT_ACTION = createAction(`${PACKAGE.name}:exportAction`, {
 						content: file.join('\n\n'),
 						savetype: 'text',
 					})
-					lastExportPath = result.filePath
+					Project!.lastExportPath = result.filePath
 				}
 			})
 	},
 })
-
-MenuBar.addAction(EXPORT_ACTION, 'tools')
+MenuBar.addAction(EXPORT_AS_ACTION, 'file.export.1')

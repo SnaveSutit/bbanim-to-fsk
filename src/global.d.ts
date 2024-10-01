@@ -9,6 +9,10 @@ declare global {
 	// Blockbench Type modifications
 	//-------------------------------
 
+	interface ModelProject {
+		lastExportPath?: string
+	}
+
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	interface _Animation {
 		export: boolean
