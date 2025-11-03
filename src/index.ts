@@ -3,10 +3,8 @@ import { renderAnimationAsFSK } from './animationRenderer'
 import { consoleGroupCollapsed } from './util/console'
 import * as events from './util/events'
 import './util/moddingTools'
+import { openAnimationPropertiesDialog } from './dialogs/animationPropertiesDialog'
 
-//-------------------------------
-// Import your source files here
-//-------------------------------
 import './dialogs/animationPropertiesDialog'
 import './mods/animationMod'
 import './mods/exportAction'
@@ -16,6 +14,7 @@ import './mods/exportAction'
 globalThis.BBAnimToFSK = {
 	events: events,
 	renderAnimationAsFSK,
+	openAnimationPropertiesDialog,
 }
 
 BBPlugin.register(PACKAGE.name, {

@@ -43,18 +43,36 @@ export function renderAnimationAsFSK(animation: _Animation) {
 					)
 				}
 				let channel = keyframe.channel
-				if (channel == 'position') channel = 'pos'
-				else if (channel == 'rotation') channel = 'rot'
-				else if (channel == 'scale') continue
+				switch (channel) {
+					case 'position':
+						channel = 'pos'
+						break
+					case 'rotation':
+						channel = 'rot'
+						break
+					case 'scale':
+						break
 
-				const xValue = roundTo(Number(keyframe.data_points[0].x), PRECISION)
-				const yValue = roundTo(
-					channel == 'pos'
-						? -Number(keyframe.data_points[0].y)
-						: Number(keyframe.data_points[0].y),
-					PRECISION
-				)
-				const zValue = roundTo(Number(keyframe.data_points[0].z), PRECISION)
+					default:
+						console.warn(`Unknown keyframe channel: ${channel}`)
+						continue
+				}
+
+				let xValue: number, yValue: number, zValue: number
+				if (channel === 'pos') {
+					xValue = roundTo(-Number(keyframe.data_points[0].x), PRECISION)
+					yValue = roundTo(-Number(keyframe.data_points[0].y), PRECISION)
+					zValue = roundTo(Number(keyframe.data_points[0].z), PRECISION)
+				} else if (channel === 'rot') {
+					xValue = roundTo(-Number(keyframe.data_points[0].x), PRECISION)
+					yValue = roundTo(-Number(keyframe.data_points[0].y), PRECISION)
+					zValue = roundTo(Number(keyframe.data_points[0].z), PRECISION)
+				} else {
+					xValue = roundTo(Number(keyframe.data_points[0].x), PRECISION)
+					yValue = roundTo(Number(keyframe.data_points[0].y), PRECISION)
+					zValue = roundTo(Number(keyframe.data_points[0].z), PRECISION)
+				}
+
 				if (xValue == 0 && yValue == 0 && zValue == 0) continue
 				shouldExport = true
 

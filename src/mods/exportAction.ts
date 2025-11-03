@@ -37,23 +37,20 @@ const EXPORT_AS_ACTION = createAction(`${PACKAGE.name}:exportAsAction`, {
 			const content = renderAnimationAsFSK(animation)
 			file.push(content)
 		}
-		// @ts-ignore
-		electron.dialog
-			.showSaveDialog({
-				title: 'Export to FSK',
-				defaultPath: Project?.lastExportPath,
-				properties: [],
-			})
-			.then((result: any) => {
-				if (!result.canceled) {
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-					Blockbench.writeFile(result.filePath, {
-						content: file.join('\n\n'),
-						savetype: 'text',
-					})
-					Project!.lastExportPath = result.filePath
-				}
-			})
+		Blockbench.export(
+			{
+				type: 'fsk',
+				extensions: ['fsk'],
+				name: Project!.name,
+				startpath: Project?.lastExportPath,
+				content: file.join('\n\n'),
+				savetype: 'text',
+			},
+			(path: string) => {
+				Project!.lastExportPath = path
+				Blockbench.showQuickMessage('Exported successfully', 2000)
+			}
+		)
 	},
 })
 MenuBar.addAction(EXPORT_AS_ACTION, 'file.export.1')

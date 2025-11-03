@@ -1,5 +1,4 @@
 import type { SvelteComponent } from 'svelte'
-import * as PACKAGE from '../../package.json'
 
 const DIALOG_STACK: SvelteDialog[] = []
 
@@ -16,7 +15,7 @@ export class SvelteDialog extends Dialog {
 			stackable?: boolean
 		}
 	) {
-		const mount = document.createComment(`${PACKAGE.name}-svelte-dialog-` + guid())
+		const mount = document.createElement('div')
 
 		super(options.id, {
 			...options,

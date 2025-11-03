@@ -4,7 +4,7 @@ import { createBlockbenchMod } from '../util/moddingTools'
 import { SvelteDialog } from '../util/svelteDialog'
 import { writable } from 'svelte/store'
 
-function openAnimationPropertiesDialog(animation: _Animation) {
+export function openAnimationPropertiesDialog(animation: _Animation) {
 	const name = writable(animation.name)
 	const doExport = writable(animation.export)
 	const enableCurve = writable(animation.enable_curve)

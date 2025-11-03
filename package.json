@@ -1,13 +1,13 @@
 {
 	"name": "fsk_animation_exporter",
 	"title": "FSK Animation Exporter",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"tags": [
 		"Minecraft: Java Edition",
 		".fsk",
 		"Fisk's Superheroes"
 	],
-	"min_blockbench_version": "4.2.0",
+	"min_blockbench_version": "5.0.0",
 	"author": {
 		"name": "SnaveSutit & Marktron",
 		"email": "snavesutit@gmail.com",
@@ -45,5 +45,6 @@
 		"vue": "^3.2.33"
 	},
 	"dependencies": {},
-	"license": "MIT"
+	"license": "MIT",
+	"packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
