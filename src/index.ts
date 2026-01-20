@@ -19,7 +19,7 @@ globalThis.BBAnimToFSK = {
 
 BBPlugin.register(PACKAGE.name, {
 	title: PACKAGE.title,
-	author: 'SnaveSutit & Marctron',
+	author: 'SnaveSutit, Marctron, shadow00dev',
 	description: PACKAGE.description,
 	icon: 'video_file',
 	variant: 'desktop',

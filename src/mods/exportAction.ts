@@ -29,7 +29,7 @@ function convertPlayerCubes(input: any) {
 			const nextIsIndex = nextLine && /=\s*curve animate2\s*\(/i.test(nextLine)
 
 			if (!nextIsIndex) {
-				output.push('') // add blank line after last index
+				output.push('') // Add blank line after last index
 			}
 			prevGroup = null
 			continue
@@ -66,6 +66,22 @@ function convertPlayerCubes(input: any) {
 		// Insert blank line if group changes
 		if (prevGroup && prevGroup !== group) output.push('')
 		output.push(converted)
+		let reorderRot = output.filter(i => i.indexOf('out "rotate"') > -1)
+		reorderRot.sort((a: any, b: any) => {
+			function p(s: any) {
+				return s.indexOf(', 0, 0, 1)') > -1
+					? 0
+					: s.indexOf(', 0, 1, 0)') > -1
+					? 1
+					: s.indexOf(', 1, 0, 0)') > -1
+					? 2
+					: 3
+			}
+			return p(a) - p(b)
+		})
+
+		output = output.filter(i => i.indexOf('out "rotate"') === -1)
+		output.push.apply(output, reorderRot)
 		prevGroup = group
 	}
 
